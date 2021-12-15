@@ -53,12 +53,11 @@ function findBy(filter) {
     where r.role_name = 'admin'
     order by u.user_id asc
    */
-    return db("users as u")
+  return db("users as u")
     .select("u.user_id", "u.username", "u.password", "r.role_name")
     .leftJoin("roles as r", "u.role_id", "r.role_id")
     .where(filter)
     .orderBy("user_id", "asc");
-
 }
 
 async function findById(user_id) {
@@ -72,13 +71,12 @@ async function findById(user_id) {
       "role_name": "instructor"
     }
    */
-    const [user] = await db("users as u")
+  const [user] = await db("users as u")
     .select("u.user_id", "u.username", "r.role_name")
     .leftJoin("roles as r", "u.role_id", "r.role_id")
-    .where("user_id", user_id)
+    .where("user_id", user_id);
 
-    return user
-
+  return user;
 }
 
 /**

@@ -46,14 +46,14 @@ const only = (role_name) => (req, res, next) => {
 
     Pull the decoded token from the req object, to avoid verifying it again!
   */
-    if(req.decodedJwt.role_name !== role_name){
-      next({
-        status: 403,
-        message: "This is not for you"
-      })
-    } else {
-      next()
-    }
+  if (req.decodedJwt.role_name !== role_name) {
+    next({
+      status: 403,
+      message: "This is not for you",
+    });
+  } else {
+    next();
+  }
 };
 
 const checkUsernameExists = (req, res, next) => {
@@ -66,8 +66,9 @@ const checkUsernameExists = (req, res, next) => {
   */
   User.findBy({ username: req.body.username })
     .then((user) => {
-      user.length < 1 ? next({ status: 401, message: "Invalid credentials" }) : 
-      req.userFromDb = user[0]
+      user.length < 1
+        ? next({ status: 401, message: "Invalid credentials" })
+        : (req.userFromDb = user[0]);
       next();
     })
     .catch(next);
@@ -92,7 +93,26 @@ const validateRoleName = (req, res, next) => {
       "message": "Role name can not be longer than 32 chars"
     }
   */
- 
+  if (req.body.role_name === undefined) {
+    req.body.role_name = "student";
+    next();
+  } else {
+    const trimmedRole = req.body.role_name.trim();
+    if (!trimmedRole) {
+      req.body.role_name = "student";
+      next();
+    } else if (trimmedRole === "admin") {
+      next({ status: 422, message: "role name can not be admin" });
+    } else if (trimmedRole.length > 32) {
+      next({
+        status: 422,
+        message: "role name can not be longer than 32 chars",
+      });
+    } else {
+      req.body.role_name = trimmedRole;
+      next();
+    }
+  }
 };
 
 module.exports = {
