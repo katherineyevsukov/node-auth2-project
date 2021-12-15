@@ -18,7 +18,7 @@ const restricted = (req, res, next) => {
 
     Put the decoded token in the req object, to make life easier for middlewares downstream!
   */
-  const token = req.headers.authorizaton;
+  const token = req.headers.authorization;
 
   if (!token) {
     return next({ status: 401, message: "Token required" });
@@ -30,11 +30,9 @@ const restricted = (req, res, next) => {
         message: "Token invalid",
       });
     }
-
     req.decodedJwt = decoded;
     next();
   });
-  next();
 };
 
 const only = (role_name) => (req, res, next) => {
@@ -48,6 +46,14 @@ const only = (role_name) => (req, res, next) => {
 
     Pull the decoded token from the req object, to avoid verifying it again!
   */
+    if(req.decodedJwt.role_name !== role_name){
+      next({
+        status: 403,
+        message: "This is not for you"
+      })
+    } else {
+      next()
+    }
 };
 
 const checkUsernameExists = (req, res, next) => {
@@ -86,6 +92,7 @@ const validateRoleName = (req, res, next) => {
       "message": "Role name can not be longer than 32 chars"
     }
   */
+ 
 };
 
 module.exports = {
